@@ -1,0 +1,41 @@
+cat > .gitignore << 'EOF'
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IntelliJ
+.idea/
+*.iml
+out/
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf/
+
+# Build / Artifacts
+/out/artifacts/
+target/
+*.war
+*.jar
+
+# Runtime
+logs/
+*.log
+temp/
+tmp/
+
+# JetBrains Tomcat 캐시(개인 경로 예시)
+#/Users/chan/Library/Caches/JetBrains/**/tomcat/
+
+# Java
+*.class
+hs_err_pid*
+replay_pid*
+
+# Misc
+*.swp
+*.swo
+Thumbs.db
+
