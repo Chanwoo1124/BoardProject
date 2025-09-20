@@ -1,41 +1,49 @@
-cat > .gitignore << 'EOF'
-# macOS
+
+
+# macOS / OS
 .DS_Store
 .AppleDouble
 .LSOverride
+Thumbs.db
 
-# IntelliJ
+# IDE
 .idea/
 *.iml
-out/
-.idea/**/workspace.xml
-.idea/**/tasks.xml
-.idea/**/usage.statistics.xml
-.idea/**/dictionaries
-.idea/**/shelf/
+*.ipr
+*.iws
+.vscode/
+.project
+.classpath11
+.settings/
 
 # Build / Artifacts
 /out/artifacts/
 target/
+build/
+.gradle/
+out/
 *.war
 *.jar
 
-# Runtime
+# Runtime / Temp / Logs
 logs/
 *.log
 temp/
 tmp/
-
-# JetBrains Tomcat 캐시(개인 경로 예시)
-#/Users/chan/Library/Caches/JetBrains/**/tomcat/
+*.swp
+*.swo
 
 # Java
 *.class
 hs_err_pid*
 replay_pid*
 
-# Misc
-*.swp
-*.swo
-Thumbs.db
+# Secrets
+.env
+.env.*
+*.env
 
+# SQL dumps (스키마는 예외로 허용)
+*.sql
+!sql/schema.sql
+!sql/migrations/**
