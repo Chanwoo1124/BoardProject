@@ -1,4 +1,4 @@
 package board.model;
 
-public class dao {
+public class User {
 }

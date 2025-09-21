@@ -1,4 +1,4 @@
 package board.model;
 
-public class entity {
+public class Post {
 }

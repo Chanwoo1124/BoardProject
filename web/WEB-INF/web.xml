@@ -7,9 +7,15 @@
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
 
-
-    <welcome-file-list>
-        <welcome-file>index.jsp</welcome-file>
-    </welcome-file-list>
+    <filter>
+        <filter-name>EncodingFilter</filter-name>
+        <filter-class>board.filter.EncodingFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>EncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+    </filter-mapping>
 
 </web-app>
