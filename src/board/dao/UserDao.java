@@ -1,4 +1,4 @@
-package board.DAO;
+package board.dao;
 
 public class UserDao {
 }
