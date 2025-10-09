@@ -50,6 +50,7 @@ public class SingupController extends HttpServlet {
                 }
                 // 오류 날 시 간단히 한개로 처리 (서버오류, 중복 아이디, 데이터 길이 초과 등)
             } catch (SQLException e) {
+                e.printStackTrace();
                 request.setAttribute("msg", "이미 사용 중인 아이디입니다.");
                 RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/auth/signup.jsp");
                 rd.forward(request, response);
