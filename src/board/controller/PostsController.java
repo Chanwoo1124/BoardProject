@@ -40,10 +40,50 @@ public class PostsController extends HttpServlet {
 
 
 
-    public void doPost(HttpServletRequest request, HttpServletResponse response){
+    @Override
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // 값 검증
+        String title = request.getParameter("title");
+        String content = request.getParameter("content");
+        if (title == null || title.isBlank() || content == null || content.isBlank()) {
+            String msg = "제목 또는 내용을 입력해주세요";
+            request.setAttribute("msg", msg);
+            RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/posts/new.jsp");
+            rd.forward(request, response);
+            return;
+        }
 
+        // 로그인 사용자 (세션에서)
+        Integer authorId = (Integer) request.getSession().getAttribute("userid");
+        if (authorId == null) {
+            request.setAttribute("msg", "로그인이 필요합니다.");
+            RequestDispatcher rd = request.getRequestDispatcher("/login.jsp");
+            rd.forward(request, response);
+            return;
+        }
 
+        // 데이터 처리
+        PostDao postDao = new PostDao();
+        try {
+            int i = postDao.insert(authorId, title, content);
+            if (i == 1) {
+                response.sendRedirect(request.getContextPath() + "/posts?page=1");
+                return;
+            }
+        } catch (SQLException e) {
+            // 너무 디테일 말고 한 문구로만
+            request.setAttribute("msg", "등록에 실패했습니다. 잠시 후 다시 시도해주세요.");
+            RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/posts/new.jsp");
+            rd.forward(request, response);
+            return;
+        }
+
+        // 여기까지 왔다는 건 insert 결과가 1이 아님
+        request.setAttribute("msg", "등록에 실패했습니다.");
+        RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/posts/new.jsp");
+        rd.forward(request, response);
     }
+
 }
 
 

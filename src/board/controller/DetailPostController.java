@@ -18,17 +18,32 @@ public class DetailPostController extends HttpServlet {
             throws ServletException, IOException {
 
         String sid = req.getParameter("id");
-        if (sid == null || sid.isBlank()) { resp.sendError(400); return; }
+        if (sid == null || sid.isBlank()) {
+            resp.sendError(400);
+            return;
+        }
 
         int id;
-        try { id = Integer.parseInt(sid); }
-        catch (NumberFormatException e) { resp.sendError(400); return; }
+        try {
+            id = Integer.parseInt(sid);
+        }
+        catch (NumberFormatException e) {
+            resp.sendError(400);
+            return;
+        }
 
         Post post;
-        try { post = new PostDao().findById(id); }
-        catch (Exception e) { resp.sendError(500); return; }
+        try { post = new PostDao().findById(id);
+        }
+        catch (Exception e) {
+            resp.sendError(500);
+            return;
+        }
 
-        if (post == null) { resp.sendError(404); return; }
+        if (post == null) {
+            resp.sendError(404);
+            return;
+        }
 
         req.setAttribute("post", post);
         RequestDispatcher rd = req.getRequestDispatcher("/WEB-INF/views/posts/detail.jsp");

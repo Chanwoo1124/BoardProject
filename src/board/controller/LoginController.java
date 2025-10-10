@@ -29,10 +29,12 @@ public class LoginController extends HttpServlet {
             return;
         }
         else {
+            //
             UserDao user = new UserDao();
             int i = 0;
             try {
                 i = user.userFind(id, pwd);
+                //예외처리 한번에 다 처리함
             } catch (SQLException e) {
                 request.setAttribute("msg", "오류 발생 잠시 후에 다시 시도해주세요");
                 RequestDispatcher rd =request.getRequestDispatcher("login.jsp");
@@ -42,8 +44,9 @@ public class LoginController extends HttpServlet {
             if (i > 0) {
                 HttpSession session = request.getSession();
                 session.setAttribute("userid",i);
-                RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/posts/list.jsp");
-                rd.forward(request,response);
+
+                response.sendRedirect(request.getContextPath() + "/posts?page=1");
+                return;
             }else{
                 request.setAttribute("msg", "아이디 또는 비밀번호가 틀립니다.");
                 RequestDispatcher rd = request.getRequestDispatcher("login.jsp");

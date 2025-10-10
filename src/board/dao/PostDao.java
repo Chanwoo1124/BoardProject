@@ -8,21 +8,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PostDao {
-    private String URL =
+    private static final String URL =
             "jdbc:mysql://localhost:3306/board?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true";
-    private String USER = "root";
-    private String PW = "chan";
+    private static final String USER = "root";
+    private static final String PW   = "chan";
 
+    // 드라이버 로드 (안전)
+    static {
+        try { Class.forName("com.mysql.cj.jdbc.Driver"); } catch (ClassNotFoundException ignore) {}
+    }
 
     public List<Post> findPage(int page) throws SQLException {
-        //값을 페이지로 받아서 목록 검색
         int offset = (page - 1) * 10;
-        //최신 글 기준으로 10개씩 출력 (OFFSET은 0 이면 1부터)
-        String sql =
+
+        // ★ 호환 최고: LIMIT ?, 10
+        final String sql =
                 "SELECT id, author_id, title, content, created_date " +
                         "FROM posts " +
                         "ORDER BY id DESC " +
-                        "LIMIT 10 OFFSET ?";
+                        "LIMIT ?, 10";
 
         List<Post> list = new ArrayList<>();
         try (Connection con = DriverManager.getConnection(URL, USER, PW);
@@ -32,41 +36,82 @@ public class PostDao {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    int id = rs.getInt("id");
-                    int authorId = rs.getInt("author_id");
-                    String title = rs.getString("title");
-                    String content = rs.getString("content");
-                    Date date = rs.getDate("created_date");
+                    int id        = rs.getInt("id");
+                    int authorId  = rs.getInt("author_id");
+                    String title  = rs.getString("title");
+                    String content= rs.getString("content");
+                    Timestamp ts  = rs.getTimestamp("created_date");
+                    LocalDate created = (ts != null) ? ts.toLocalDateTime().toLocalDate() : null;
 
-
-                    list.add(new Post(id, authorId, title, content, date.toLocalDate()));
+                    list.add(new Post(id, authorId, title, content, created));
                 }
             }
         }
         return list;
     }
+
     public Post findById(int id) throws SQLException {
-        String sql = "SELECT id, author_id, title, content, created_date FROM posts WHERE id = ?";
-        try (java.sql.Connection con = DriverManager.getConnection(URL, USER, PW);
-             java.sql.PreparedStatement ps = con.prepareStatement(sql)) {
+        final String sql =
+                "SELECT id, author_id, title, content, created_date " +
+                        "FROM posts WHERE id = ?";
+
+        try (Connection con = DriverManager.getConnection(URL, USER, PW);
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setInt(1, id);
-            try (java.sql.ResultSet rs = ps.executeQuery()) {
+
+            try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    java.sql.Timestamp ts = rs.getTimestamp("created_date");
-                    java.time.LocalDate created = (ts != null) ? ts.toLocalDateTime().toLocalDate() : null;
-                    return new Post(
-                            rs.getInt("id"),
-                            rs.getInt("author_id"),
-                            rs.getString("title"),
-                            rs.getString("content"),
-                            created
-                    );
+                    int pid       = rs.getInt("id");
+                    int authorId  = rs.getInt("author_id");
+                    String title  = rs.getString("title");
+                    String content= rs.getString("content");
+                    Timestamp ts  = rs.getTimestamp("created_date");
+                    LocalDate created = (ts != null) ? ts.toLocalDateTime().toLocalDate() : null;
+
+                    return new Post(pid, authorId, title, content, created);
                 }
             }
         }
         return null;
     }
 
+    public int insert(int authorId, String title, String content) throws SQLException {
+        final String sql =
+                "INSERT INTO posts (author_id, title, content, created_date) " +
+                        "VALUES (?, ?, ?, NOW())";
+
+        try (Connection con = DriverManager.getConnection(URL, USER, PW);
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, authorId);
+            ps.setString(2, title);
+            ps.setString(3, content);
+            return ps.executeUpdate(); // 1이면 성공
+        }
+    }
+
+
+    public int update(int id, int authorId, String title, String content) throws SQLException {
+        final String sql = "UPDATE posts SET title=?, content=? WHERE id=? AND author_id=?";
+        try (Connection con = DriverManager.getConnection(URL, USER, PW);
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, title);
+            ps.setString(2, content);
+            ps.setInt(3, id);
+            ps.setInt(4, authorId);
+            return ps.executeUpdate();
+        }
+    }
+    public int delete(int id, int authorId) throws SQLException {
+        final String sql = "DELETE FROM posts WHERE id = ? AND author_id = ?";
+        try (Connection con = DriverManager.getConnection(URL, USER, PW);
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.setInt(2, authorId);
+            return ps.executeUpdate();
+        }
+    }
 
 }
 
