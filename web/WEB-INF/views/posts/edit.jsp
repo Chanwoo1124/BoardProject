@@ -16,6 +16,7 @@
         <textarea name="content" rows="10" cols="60"><%=p.getContent()%></textarea><br>
         <input type="submit" value="수정">
     </form>
+    <%--수정시 내용 값 없을시 메시지 출력--%>
     <%
         String msg = (String) request.getAttribute("msg");
         if (msg != null && !msg.isEmpty()) {

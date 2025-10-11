@@ -21,8 +21,11 @@ public class PostsController extends HttpServlet {
         String ppage = request.getParameter("page");
         int page = Integer.parseInt(ppage);
         PostDao post = new PostDao();
+
         List<Post> posts;
+
         try {
+            //게시글 리스트 받아와서 list.jsp로 포워드
             posts = post.findPage(page);
             request.setAttribute("posts",posts);
             RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/posts/list.jsp");

@@ -29,7 +29,7 @@ public class LoginController extends HttpServlet {
             return;
         }
         else {
-            //
+            // UserDao.userFind 메소드 실행
             UserDao user = new UserDao();
             int i = 0;
             try {
@@ -41,12 +41,13 @@ public class LoginController extends HttpServlet {
                 rd.forward(request,response);
                 return;
             }
+            // 회원 번호 받아와서 세션 발행 후 쿼리스트링으로 값을 넘겨줌
             if (i > 0) {
                 HttpSession session = request.getSession();
                 session.setAttribute("userid",i);
-
                 response.sendRedirect(request.getContextPath() + "/posts?page=1");
                 return;
+
             }else{
                 request.setAttribute("msg", "아이디 또는 비밀번호가 틀립니다.");
                 RequestDispatcher rd = request.getRequestDispatcher("login.jsp");

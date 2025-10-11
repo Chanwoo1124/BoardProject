@@ -13,22 +13,25 @@ import java.sql.SQLException;
 @WebServlet("/posts/edit")
 public class UpdatePostsController extends HttpServlet {
 
-    // 수정 폼 열기
+    // 수정 페이지 열기
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+        //쿼리스트링 값 가져오기
         int id = Integer.parseInt(request.getParameter("id"));
         Integer userId = (Integer) request.getSession().getAttribute("userid");
 
         PostDao dao = new PostDao();
         Post post = null;
+        // id로 게시판 글 찾아오기
         try {
-            post = dao.findById(id);
-        } catch (SQLException ignore) { }
+            post = dao.detailPost(id);
+        } catch (SQLException ignore) {
 
-        // 글 없거나 로그인 안되어 있거나, 소유자 아님 → 권한 없음
-        if (post == null || userId == null || userId.intValue() != post.getAuthorId()) {
+        }
+
+        // 글, 로그인 , 작성자 비교하여서 아니면 권한 없습니다 출력
+        if (post == null || userId == null || userId == null && userId.equals(post.getAuthorId())) {
             request.setAttribute("msg", "권한이 없습니다.");
             request.getRequestDispatcher("/login.jsp").forward(request, response);
             return;
@@ -38,41 +41,53 @@ public class UpdatePostsController extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/posts/edit.jsp").forward(request, response);
     }
 
-    // 수정 처리
+    // 수정
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        //값 추출
         int id = Integer.parseInt(request.getParameter("id"));
         String title = request.getParameter("title");
         String content = request.getParameter("content");
         Integer userId = (Integer) request.getSession().getAttribute("userid");
 
-        // 제목/내용 체크 간단히
+       // 빈값있는지 확인
         if (title == null || title.isBlank() || content == null || content.isBlank()) {
             request.setAttribute("msg", "제목/내용을 입력해주세요.");
-            // 기존 글 다시 싣고 폼으로
-            try { request.setAttribute("post", new PostDao().findById(id)); } catch (SQLException ignore) {}
-            request.getRequestDispatcher("/WEB-INF/views/posts/edit.jsp").forward(request, response);
+            RequestDispatcher rdE = request.getRequestDispatcher("/WEB-INF/views/posts/edit.jsp");
+            rdE.forward(request,response);
             return;
         }
 
-        // DB 업데이트 (내 글만)
-        int rows = 0;
+        // 게시판 상세 정보 받아오기
+        PostDao post = new PostDao();
+        RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/posts/edit.jsp");
         try {
-            rows = new PostDao().update(id, userId == null ? -1 : userId, title, content);
-        } catch (SQLException ignore) { }
+            request.setAttribute("post", post.detailPost(id));
+        }
+        catch (SQLException ignore) {
+            request.setAttribute("msg","오류 발생");
+            rd.forward(request,response);
+            return;
+        }
 
-        if (rows == 1) {
-            // 성공 → 상세로
+        // db 게시글 등록
+        int i = 0;
+        try {
+            i = post.update(id, userId, title, content);
+        } catch (SQLException e) {
+            request.setAttribute("msg", "오류 발생");
+            rd.forward(request, response);
+            return;
+        }
+
+        if (i == 1) {
+            // 성공시 수정한 글로
             response.sendRedirect(request.getContextPath() + "/posts/detail?id=" + id);
             return;
         }
 
-        // 실패(권한 없음/오류) → 메시지 띄우고 폼으로
-        request.setAttribute("msg", "권한이 없습니다.");
-        try { request.setAttribute("post", new PostDao().findById(id)); } catch (SQLException ignore) {}
-        request.getRequestDispatcher("/WEB-INF/views/posts/edit.jsp").forward(request, response);
     }
 }
 
