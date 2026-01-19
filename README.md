@@ -1,3 +1,25 @@
+# 📝 Servlet & JSP 基盤 掲示板プロジェクト
+
+## 🔗 🛠 技術スタック
+
+- **Frontend**: JSP, HTML
+- **Backend**: Java Servlet
+- **Database**: MySQL
+- **Data Access**: JDBC
+
+
+---
+
+## ❓ 作成背景 (Motivation)
+
+**Webアプリケーションの全体的な構造と動作プロセスを知りたくて作成しました。**
+
+Springを学ぶ前に、基礎となるServletとJSPを使用して、Webがどのように動くのかを直接実装して確認したいと思いました。
+
+- **HTTPリクエスト/レスポンス**: クライアントとサーバーがデータをやり取りする過程を確認
+- **DB連携**: JDBCを使用してデータベースに直接クエリを実行し、連携の仕組みを学習
+
+
 ## ERD
 
 ```mermaid
